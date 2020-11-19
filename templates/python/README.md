@@ -11,7 +11,7 @@
 
 `app-control APP_NAME ACTION`
 
-See [README](../../README.md)
+See [README](../../README.md).
 
 
 ## Directory structure

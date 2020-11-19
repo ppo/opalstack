@@ -21,7 +21,7 @@ Allow to control the operation of Python apps.
 
 **Usage:** `app-template-py APP_NAME`
 
-See [template documentation](templates/python)
+See [template documentation](templates/python).
 
 
 ## Application templates
