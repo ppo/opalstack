@@ -1,0 +1,35 @@
+#!/bin/bash
+# Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
+
+[ $# -lt 1 ] && { echo -e "\e[1mUsage:\e[0m `basename ${BASH_SOURCE[0]}` APP_NAME"; exit 1; }
+
+APP_NAME=$1
+
+TEMPLATE_DIR="$HOME/templates/python"
+APP_DIR="$HOME/apps/$APP_NAME"
+
+
+[ -d "$APP_DIR" ] || { echo -e "\e[31mERROR: App '$APP_NAME' does not exist.\e[0m"; exit 1; }
+
+cd $APP_DIR
+
+APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
+./stop > /dev/null
+
+rm -rf *
+
+echo -e "\e[1;37mCopying template files…\e[0m"
+cp -r $TEMPLATE_DIR/. .
+find . -name .gitkeep -delete
+/bin/python3.6 -m venv env
+sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini
+
+chmod 755 env
+chmod 700 app tmp
+chmod 644 uwsgi.ini
+
+echo -e "\e[1;37mInstalling pip packages…\e[0m"
+. env/bin/activate
+pip install --upgrade -r opalstack-requirements.txt
+
+echo -e "\n\e[32mSuccessfully done.\e[0m"
