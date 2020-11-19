@@ -3,22 +3,15 @@
 ## Install procedure
 
 1. Create a `Python/uWSGI` application as explained [here](https://help.opalstack.com/article/60/pythonuwsgi-applications#installing-a-pythonuwsgi-application).
-2. Execute `app-template APP_NAME` (see the `bin` directory in this repository).
+2. Execute `app-template-py APP_NAME` (see [README](../../README.md)).
 3. Copy your application files in the `app` directory.
-
 
 
 ## Controlling your application
 
-`app-control APP_NAME ACTION`  (see the `bin` directory in this repository)
+`app-control APP_NAME ACTION`
 
-**Actions:**
-
-- `kill`: Kill the application (in case it has hung).
-- `restart`: Restart the application (executing stop then start).
-- `start`: Start the application.
-- `status`: Status the application (values: `running`, `stopped`, `crashed`).
-- `stop`: Stop the application.
+See [README](../../README.md)
 
 
 ## Directory structure
