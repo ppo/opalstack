@@ -1,0 +1,128 @@
+#!/bin/bash
+# Allow to control the operation of Python apps.
+
+function _date() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
+
+
+function _error() {
+  echo -e "\e[31mERROR: $1\e[0m"
+  exit 1
+}
+
+
+function _log() {
+  echo "[app: $APP_NAME] $1"
+}
+
+
+function _isRunning() {
+  # [ -n "$PID" ] && (ps -u `whoami` -o pid= | grep "^`whoami`\s+${PID}$" &> /dev/null)
+  [ -n "$PID" ] && [ "`ps -p $PID -o user=`" == "`whoami`" ]
+}
+
+
+
+## Kill the application (in case it has hung).
+function action_kill() {
+  kill -9 $PID
+  _log "Killed uWSGI at `_date`."
+  rm -f $PID_FILE
+}
+
+
+## Restart the application (executing stop then start).
+function action_restart() {
+  action_stop
+  sleep 3
+  action_start
+}
+
+
+## Start the application.
+function action_start() {
+  if _isRunning; then
+    _log "uWSGI already running."
+  else
+    mkdir -p `dirname $PID_FILE`
+    $BIN_DIR/uwsgi --ini $APP_DIR/uwsgi.ini
+    _log "Started uWSGI at `_date`."
+  fi
+}
+
+
+## Status the application (values: `running`, `stopped`, `crashed`).
+function action_status() {
+  if _isRunning; then
+    echo "running"
+  else
+    if [ -z "$PID" ]; then
+      echo "stopped"
+    else
+      echo "crashed"
+    fi
+  fi
+}
+
+
+## Stop the application.
+function action_stop() {
+  if _isRunning; then
+    $BIN_DIR/uwsgi --stop $PID_FILE
+    sleep 3
+
+    if _isRunning; then
+      action_kill
+    else
+      _log "Stopped uWSGI at `_date`."
+    fi
+  else
+    if [ -f "$PID_FILE" ]; then
+      _log "uWSGI not running."
+    else
+      _log "No PID file."
+    fi
+  fi
+
+  rm -f $PID_FILE
+}
+
+
+function action_help() {
+  # For explanation, see https://gist.github.com/klmr/575726c7e05d8780505a
+  declare -i indent=0
+  for cmd in `grep -oE "^function action_[^\(]+" ${BASH_SOURCE[0]} | sed "s/function action_//"`; do
+    l=${#cmd}; [ $l -gt $indent ] && indent=$l
+  done
+  echo
+  echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` APP_NAME ACTION\e[0m"
+  echo
+  echo -e "\e[1;37mCommands:\e[0m"
+  sed -E -ne"/^## /{h;s/.*//;:d" -e"H;n;s/^## //;td" -e"s/^function action_([^\(]+).*/\1/;s/__/:/;G;s/\\n## /---/;s/\\n/ /g;p;}" ${BASH_SOURCE[0]} \
+    | LC_ALL=C sort -f \
+    | awk -F "---" -v n=$(tput cols) -v i=$indent -v a="`printf '\e[36m'`" -v z="`printf '\e[0m'`" \
+    '{printf"  %s%*s%s ",a,-i,$1,z;m=split($2,w," ");l=n-i;for(j=1;j<=m;j++){l-=length(w[j])+1;if(l<= 0){l=n-i-length(w[j])-1;printf"\n  %*s ",-i," ";}printf"%s ",w[j];}printf"\n";}'
+  echo
+}
+
+
+# Validate script arguments.
+[ $# -lt 2 ] && { action_help; exit 1; }
+
+# Initialization.
+APP_NAME=$1
+ACTION=$2
+ACTION_FUNCTION="action_$ACTION"
+
+APP_DIR="$HOME/apps/$APP_NAME"
+BIN_DIR="$APP_DIR/env/bin"
+PID_FILE="$APP_DIR/tmp/uwsgi.pid"
+[ -f "$PID_FILE" ] && PID=`cat $PID_FILE` || PID=
+
+# Check if app exists.
+[ -d "$APP_DIR" ] || { _error "App '$APP_NAME' does not exist."; }
+
+# Execute action.
+declare -F "$ACTION_FUNCTION" &> /dev/null
+[[ $? == 0 ]] && $ACTION_FUNCTION || { _error "Unknown action '$ACTION'."; }
