@@ -24,6 +24,7 @@ APP_DIR="$HOME/apps/$APP_NAME"
 
 # Install Python version if not available.
 if [ -z "$PY_EXEC" ]; then
+  echo -e "\e[1;37mInstalling Python $PY_VERSION…\e[0m"
   py-install-version $PY_VERSION
   if [ $? = 0 ]; then
     PY_EXEC=`pyWhichExec $PY_VERSION`
@@ -36,12 +37,15 @@ if [ -z "$PY_EXEC" ]; then
 fi
 
 
+# Converting the app.
 cd $APP_DIR
+echo -e "\n\e[1;37mConverting \e[36m$APP_DIR\e[1;37m using Python \e[36m`pyRealVersion $PY_EXEC`\e[1;37m.\e[0m\n"
 
 # Retrieve application port.
 APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
 
 # Remove current cron job.
+echo -e "\e[1;37mRemoving current cron job.\e[0m"
 cron_selector="$APP_DIR/start"
 CRON_JOB_SCHEDULE=`crontab -l | grep -oP ".+(?= ${cron_selector}.*)"`
 [ -n "$CRON_JOB_SCHEDULE" ] && (crontab -l | grep -v "$cron_selector" | crontab -)
@@ -50,19 +54,19 @@ CRON_JOB_SCHEDULE=`crontab -l | grep -oP ".+(?= ${cron_selector}.*)"`
 [ -f ./stop ] && ./stop > /dev/null
 
 # Move current files to backup folder.
-echo -e "\e[1;37mCurrent files moved into '.original-files/'.\e[0m"
+echo -e "\e[1;37mMoving current files into '.original-files/'.\e[0m"
 mkdir -p .original-files && chmod 770 .original-files
 mv * .* .original-files/ 2> /dev/null
 
 
 # Create files from template.
-echo -e "\e[1;37mCopying template files…\e[0m"
+echo -e "\e[1;37mCopying template files.\e[0m"
 cp -r $TEMPLATE_DIR/. .
 rm README.md
 find . -name .gitkeep -delete
 
 # Create virtual environment.
-echo -e "\e[1;37mCreating virtual environment…\e[0m"
+echo -e "\e[1;37mCreating virtual environment.\e[0m"
 $PY_EXEC -m venv venv
 [ $? = 0 ] || { echo -e "\e[31mERROR: Virtual environment creation failed.\e[0m"; exit 1; }
 
@@ -81,12 +85,13 @@ pip install --upgrade -r opalstack-requirements.txt
 deactivate
 
 # Create new cron job.
+echo -e "\e[1;37mCreating new cron job.\e[0m"
 [ -z "$CRON_JOB_SCHEDULE" ] && CRON_JOB_SCHEDULE="*/10 * * * *"
 (crontab -l; echo "$CRON_JOB_SCHEDULE \$HOME/bin/app-control $APP_NAME cron") | crontab -
 
 
 # Execution report.
-echo -e "\n\e[32m$APP_NAME successfully converted.\e[0m"
+echo -e "\n\e[32mApplication \e[36m$APP_NAME\e[32m successfully converted.\e[0m"
 echo -e "\n\e[1;37mNext steps:\e[0m"
 echo -e "- Copy your application files in \e[36m$APP_DIR/app/\e[0m"
 echo -e "- Modify \e[36m$APP_DIR/uwsgi.ini\e[0m if/as needed"
