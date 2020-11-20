@@ -1,5 +1,10 @@
 #!/bin/bash
 # Allow to control the operation of Python apps.
+# Usage: app-control APP_NAME ACTION
+#  Actions: kill, restart, start, status, stop.
+
+
+# HELPERS
 
 function _date() {
   date '+%Y-%m-%d %H:%M:%S'
@@ -19,10 +24,11 @@ function _log() {
 
 function _isRunning() {
   # [ -n "$PID" ] && (ps -u `whoami` -o pid= | grep "^`whoami`\s+${PID}$" &> /dev/null)
-  [ -n "$PID" ] && [ "`ps -p $PID -o user=`" == "`whoami`" ]
+  [ -n "$PID" ] && [ "`ps -p $PID -o user=`" = "`whoami`" ]
 }
 
 
+# ACTIONS
 
 ## Kill the application (in case it has hung).
 function action_kill() {
@@ -52,7 +58,7 @@ function action_start() {
 }
 
 
-## Status the application (values: `running`, `stopped`, `crashed`).
+## Status of the application (values: `running`, `stopped`, `crashed`).
 function action_status() {
   if _isRunning; then
     echo "running"
@@ -106,6 +112,8 @@ function action_help() {
   echo
 }
 
+
+# EXECUTION
 
 # Validate script arguments.
 [ $# -lt 2 ] && { action_help; exit 1; }

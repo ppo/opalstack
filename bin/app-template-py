@@ -1,23 +1,35 @@
 #!/bin/bash
 # Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
+# Usage: app-template-py APP_NAME
 
+
+# Validate script arguments.
 [ $# -lt 1 ] && { echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` APP_NAME\e[0m"; exit 1; }
 
+
+# Initialization.
 APP_NAME=$1
 
 TEMPLATE_DIR="$HOME/templates/python"
 APP_DIR="$HOME/apps/$APP_NAME"
 
 
+# Check that application exists.
 [ -d "$APP_DIR" ] || { echo -e "\e[31mERROR: App '$APP_NAME' does not exist.\e[0m"; exit 1; }
 
 cd $APP_DIR
 
+# Retrieve application port.
 APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
-./stop > /dev/null
 
+# Stop the current application.
+[ -f ./stop ] && ./stop > /dev/null
+
+# Remove all files.
 rm -rf *
 
+
+# Create files from template.
 echo -e "\e[1;37mCopying template files…\e[0m"
 cp -r $TEMPLATE_DIR/. .
 find . -name .gitkeep -delete
@@ -32,4 +44,8 @@ echo -e "\e[1;37mInstalling pip packages…\e[0m"
 . env/bin/activate
 pip install --upgrade -r opalstack-requirements.txt
 
+
+# Execution report.
 echo -e "\n\e[32m$APP_NAME successfully converted.\e[0m"
+echo -e "\e[33m "Don't forget to start your app after installing it: \e[1;33mapp-control $APP_NAME start\e[0m"
+echo

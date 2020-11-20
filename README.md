@@ -13,7 +13,7 @@ Allow to control the operation of Python apps.
 - `kill`: Kill the application if it has hung.
 - `restart`: Restart the application (executing stop then start).
 - `start`: Start the application.
-- `status`: Status the application (values: `running`, `stopped`, `crashed`).
+- `status`: Status of the application (values: `running`, `stopped`, `crashed`).
 - `stop`: Stop the application.
 
 
@@ -26,11 +26,11 @@ Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
 See [template documentation](templates/python).
 
 
-### [install-py](bin/install-py)
+### [py-install-version](bin/py-install-version)
 
 Install a version of Python (in `$HOME/opt`).
 
-**Usage:** `install-py VERSION [--force]`
+**Usage:** `py-install-version VERSION [--force]`
 
 If the script is executed without argument, it lists all the currently available versions found in
 `$PATH` and `$HOME/opt/bin`.
