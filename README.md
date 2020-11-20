@@ -2,7 +2,7 @@
 
 ## Shell scripts
 
-### app-control
+### [app-control](bin/app-control)
 
 Allow to control the operation of Python apps.
 
@@ -17,7 +17,7 @@ Allow to control the operation of Python apps.
 - `stop`: Stop the application.
 
 
-### app-template-py
+### [app-template-py](bin/app-template-py)
 
 Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
 
@@ -26,7 +26,7 @@ Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
 See [template documentation](templates/python).
 
 
-### install-py
+### [install-py](bin/install-py)
 
 Install a version of Python (in `$HOME/opt`).
 
