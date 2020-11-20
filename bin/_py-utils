@@ -1,0 +1,26 @@
+LOCAL_PYTHON_BIN_DIR=$HOME/opt/bin
+
+
+function pyAvailableVersions() {
+  (ls /usr/bin/python*; ls $LOCAL_PYTHON_BIN_DIR/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq
+}
+
+
+function pyRealVersion() {
+  $1 --version 2>&1 | cut -d ' ' -f 2
+}
+
+
+function pyVersionExists() {
+  [ -n "`pyWhichExec $1`" ]
+}
+
+
+function pyWhichExec() {
+  py_exec_name="python`cut -d '.' -f 1,2 <<< $1`"
+  py_exec=`which $py_exec_name 2> /dev/null`
+  if [ -z "$py_exec" ] && [ -f "$LOCAL_PYTHON_BIN_DIR/$py_exec_name" ]; then
+    py_exec="$LOCAL_PYTHON_BIN_DIR/$py_exec_name"
+  fi
+  echo $py_exec
+}

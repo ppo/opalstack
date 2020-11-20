@@ -1,55 +1,37 @@
 #!/bin/bash
 # Install a version of Python.
+# Usage: py-install-version PY_VERSION [--force]
 # Opalstack doc: https://community.opalstack.com/d/204-howto-install-a-newer-or-older-version-of-python
 
-mkdir -p $HOME/{opt,tmp}
-export TMPDIR=$HOME/tmp
-OPT_BIN_DIR=$HOME/opt/bin
-mkdir -p OPT_BIN_DIR
+
+. `dirname ${BASH_SOURCE[0]}`/_py-utils
 
 
-function whichPyExec() {
-  py_exec_name="python`cut -d '.' -f 1,2 <<< $1`"
-  py_exec=`which $py_exec_name 2> /dev/null`
-  if [ -z "$py_exec" ] && [ -f "$OPT_BIN_DIR/$py_exec_name" ]; then
-    py_exec="$OPT_BIN_DIR/$py_exec_name"
-  fi
-  echo $py_exec
-}
-
-function realPyVersion() {
-  $1 --version 2>&1 | cut -d ' ' -f 2
-}
-
-
+# Validate script arguments.
 if [ $# -lt 1 ]; then
-  echo
   echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` PY_VERSION [--force]\e[0m"
-  echo
-  echo -e "\e[1;37mAvailable versions:\e[0m"
-  output=""
-  for py_version in `(ls /usr/bin/python*; ls $OPT_BIN_DIR/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq`; do
-    py_exec=`whichPyExec $py_version`
-    output="$output\n  `realPyVersion $py_exec`:$py_exec"
-  done
-  echo -e $output | column -t -s ":"
-  echo
   exit 1
 fi
 
 
+# Initialization.
 PY_VERSION=$1
 [[ "$*" =~ "--force" ]] && FORCE=true || FORCE=false
 
-PY_EXEC=`whichPyExec $PY_VERSION`
-if [ -n "$PY_EXEC" ] && [ $FORCE = false ]; then
-  py_real_version=`realPyVersion $PY_EXEC`
-  echo "Python $py_real_version is already available ($PY_EXEC)."
+# Check if already available.
+if pyVersionExists $PY_VERSION && [ $FORCE = false ]; then
+  py_exec=`pyWhichExec $PY_VERSION`
+  py_real_version=`pyRealVersion $py_exec`
+  echo "Python $py_real_version is already available ($py_exec)."
   [ "$py_real_version" = "$PY_VERSION" ] || echo "Use '--force' to install it anyway."
   exit
 fi
 
+mkdir -p $HOME/{opt,tmp} $LOCAL_PYTHON_BIN_DIR
+export TMPDIR=$HOME/tmp
 
+
+# Install version.
 cd $TMPDIR
 echo -e "\e[1;37mDownloading sources…\e[0m"
 wget https://www.python.org/ftp/python/$PY_VERSION/Python-$PY_VERSION.tgz
@@ -66,5 +48,6 @@ echo -e "\n\e[1;37mDeleting sources…\e[0m"
 rm -rf Python-${PY_VERSION}*
 
 
-PY_EXEC=`whichPyExec $PY_VERSION`
-echo -e "\n\e[32mSuccessfully installed Python `realPyVersion $PY_EXEC` ($PY_EXEC).\e[0m"
+# Execution report.
+py_exec=`pyWhichExec $PY_VERSION`
+echo -e "\n\e[32mSuccessfully installed Python `pyRealVersion $py_exec` ($py_exec).\e[0m"

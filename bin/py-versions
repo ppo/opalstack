@@ -1,0 +1,38 @@
+#!/bin/bash
+# List available Python versions (in `$PATH` and `$HOME/opt/bin`).
+# Usage: py-versions [exec|raw|xy]
+#   default: Table of real versions and executables.
+#   exec: List all executables.
+#   raw: List all real versions.
+#   xy: List "major.minor" version of all executables.
+
+. `dirname ${BASH_SOURCE[0]}`/_py-utils
+
+
+case "$1" in
+  "exec")
+    for py_version in `pyAvailableVersions`; do
+      echo `pyWhichExec $py_version`
+    done
+    ;;
+
+  "raw")
+    for py_version in `pyAvailableVersions`; do
+      py_exec=`pyWhichExec $py_version`
+      echo `pyRealVersion $py_exec`
+    done
+    ;;
+
+  "xy")
+    pyAvailableVersions
+    ;;
+
+  *)
+    output=""
+    for py_version in `pyAvailableVersions`; do
+      py_exec=`pyWhichExec $py_version`
+      output="$output\n`pyRealVersion $py_exec`:$py_exec"
+    done
+    echo -e $output | column -t -s ":"
+    ;;
+esac
