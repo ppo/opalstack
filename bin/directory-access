@@ -1,0 +1,20 @@
+#!/bin/bash
+# Grant access to a directory to another shell user.
+# Usage: directory-access USER PATH
+# Opalstack doc: https://help.opalstack.com/article/147/howto-grant-access-to-a-directory
+
+
+# Validate script arguments.
+[ $# -lt 2 ] && { echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` USER PATH\e[0m"; exit 1; }
+
+
+# Initialization.
+USER=$1
+DIR=$2
+
+# Set permissions.
+setfacl -m u:$USER:--x $HOME
+setfacl -R -m u:$USER:rwx $DIR
+setfacl -R -m d:u:$USER:rwx $DIR
+setfacl -R -m d:u:`whoami`:rwx $DIR
+chmod g+s $DIR

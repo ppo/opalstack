@@ -32,6 +32,15 @@ If `PY_VERSION` is not available, `py-install-version` is used to install it.
 See [template documentation](templates/python).
 
 
+### [directory-access](bin/directory-access)
+
+Grant access to a directory to another shell user.
+
+**Usage:** `directory-access USER PATH`
+
+See [Opalstack documentation](https://help.opalstack.com/article/147/howto-grant-access-to-a-directory)
+
+
 ### [py-install-version](bin/py-install-version)
 
 Install a version of Python (in `$HOME/opt`).
