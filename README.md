@@ -4,7 +4,7 @@
 
 ### [app-control](bin/app-control)
 
-Allow to control the operation of Python apps.
+Control the operation of Python applications.
 
 **Usage:** `app-control APP_NAME ACTION`
 
@@ -19,9 +19,11 @@ Allow to control the operation of Python apps.
 
 ### [app-template-py](bin/app-template-py)
 
-Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
+Convert a Python application created via the Control Panel using our app template.
 
 **Usage:** `app-template-py APP_NAME [PY_VERSION]`
+
+The Python application can be `Python/uWSGI` or `Django`.
 
 `PY_VERSION` is used to create the virtual environment.  
 If `PY_VERSION` is not available, `py-install-version` is used to install it.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Allow to control the operation of Python apps.
+# Control the operation of Python applications.
 # Usage: app-control APP_NAME ACTION
 #  Actions: kill, restart, start, status, stop.
 

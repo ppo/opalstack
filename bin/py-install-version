@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install a version of Python.
+# Install a version of Python (in `$HOME/opt`).
 # Usage: py-install-version PY_VERSION [--force]
 # Opalstack doc: https://community.opalstack.com/d/204-howto-install-a-newer-or-older-version-of-python
 

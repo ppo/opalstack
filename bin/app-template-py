@@ -1,5 +1,5 @@
 #!/bin/bash
-# Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
+# Convert a Python application created via the Control Panel using our app template.
 # Usage: app-template-py APP_NAME [PY_VERSION]
 
 
