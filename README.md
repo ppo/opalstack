@@ -21,7 +21,10 @@ Allow to control the operation of Python apps.
 
 Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
 
-**Usage:** `app-template-py APP_NAME`
+**Usage:** `app-template-py APP_NAME [PY_VERSION]`
+
+`PY_VERSION` is used to create the virtual environment.  
+If `PY_VERSION` is not available, `py-install-version` is used to install it.
 
 See [template documentation](templates/python).
 

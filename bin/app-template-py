@@ -1,14 +1,19 @@
 #!/bin/bash
 # Convert an Opalstack Python app (Python/uWsgi or Django) using our app template.
-# Usage: app-template-py APP_NAME
+# Usage: app-template-py APP_NAME [PY_VERSION]
 
 
 # Validate script arguments.
-[ $# -lt 1 ] && { echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` APP_NAME\e[0m"; exit 1; }
+[ $# -lt 1 ] && { echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` APP_NAME [PY_VERSION]\e[0m"; exit 1; }
+
+
+. `dirname ${BASH_SOURCE[0]}`/_py-utils
 
 
 # Initialization.
 APP_NAME=$1
+PY_VERSION=$2
+[ -z "$PY_VERSION" ] && PY_EXEC=`pyLatestAvailableExec` || PY_EXEC=`pyWhichExec $PY_VERSION`
 
 TEMPLATE_DIR="$HOME/templates/python"
 APP_DIR="$HOME/apps/$APP_NAME"
@@ -16,6 +21,20 @@ APP_DIR="$HOME/apps/$APP_NAME"
 
 # Check that application exists.
 [ -d "$APP_DIR" ] || { echo -e "\e[31mERROR: App '$APP_NAME' does not exist.\e[0m"; exit 1; }
+
+# Install Python version if not available.
+if [ -z "$PY_EXEC" ]; then
+  py-install-version $PY_VERSION
+  if [ $? = 0 ]; then
+    PY_EXEC=`pyWhichExec $PY_VERSION`
+    [ -z "$PY_EXEC" ] && { echo -e "\e[31mERROR: Python $PY_VERSION executable not found.\e[0m"; exit 1; }
+  else
+    echo -e "\e[31mERROR: Installation of Python $PY_VERSION failed.\e[0m"
+    echo -e "Try installing it manually using: \e[36mpy-install-version $PY_VERSION --force\e[0m"
+    exit 1
+  fi
+fi
+
 
 cd $APP_DIR
 
@@ -27,7 +46,7 @@ APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
 
 # Move current files to backup folder.
 echo -e "\e[1;37mCurrent files moved into '.original-files/'.\e[0m"
-mkdir -p .original-files
+mkdir -p .original-files && chmod 770
 mv * .* .original-files/ 2> /dev/null
 
 
@@ -35,16 +54,24 @@ mv * .* .original-files/ 2> /dev/null
 echo -e "\e[1;37mCopying template files…\e[0m"
 cp -r $TEMPLATE_DIR/. .
 find . -name .gitkeep -delete
-/bin/python3.6 -m venv env
+
+# Create virtual environment.
+echo -e "\e[1;37mCreating virtual environment…\e[0m"
+$PY_EXEC -m venv env
+
+# Update configuration files.
 sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini
 
+# Ensure permissions are correct.
 chmod 755 env
 chmod 700 app tmp
 chmod 644 uwsgi.ini
 
+# Install pip packages.
 echo -e "\e[1;37mInstalling pip packages…\e[0m"
 . env/bin/activate
 pip install --upgrade -r opalstack-requirements.txt
+deactivate
 
 
 # Execution report.
