@@ -24,7 +24,7 @@ function _error() {
 
 
 function _log() {
-  echo "[app: $APP_NAME] $1"
+  [ IS_CRON = false ] && echo "[app: $APP_NAME] $1"
 }
 
 
@@ -35,6 +35,13 @@ function _isRunning() {
 
 
 # ACTIONS
+
+## Cron job tasks for the application.
+function action_cron() {
+  IS_CRON=true
+  action_start
+}
+
 
 ## Kill the application (in case it has hung).
 function action_kill() {
@@ -118,6 +125,7 @@ APP_DIR="$HOME/apps/$APP_NAME"
 BIN_DIR="$APP_DIR/venv/bin"
 PID_FILE="$APP_DIR/tmp/uwsgi.pid"
 [ -f "$PID_FILE" ] && PID=`cat $PID_FILE` || PID=
+IS_CRON=false
 
 # Check if app exists.
 [ -d "$APP_DIR" ] || { _error "App '$APP_NAME' does not exist."; }
