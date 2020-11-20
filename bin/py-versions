@@ -1,10 +1,14 @@
 #!/bin/bash
 # List available Python versions (in `$PATH` and `$HOME/opt/bin`).
-# Usage: py-versions [exec|raw|xy]
+# Usage: py-versions [mode]
+# Modes:
 #   default: Table of real versions and executables.
 #   exec: List all executables.
+#   latest: Latest version available.
+#   latest-exec: Executable of latest version available.
 #   raw: List all real versions.
 #   xy: List "major.minor" version of all executables.
+
 
 . `dirname ${BASH_SOURCE[0]}`/_py-utils
 
@@ -14,6 +18,14 @@ case "$1" in
     for py_version in `pyAvailableVersions`; do
       echo `pyWhichExec $py_version`
     done
+    ;;
+
+  "latest")
+    pyLatestAvailableVersion
+    ;;
+
+  "latest-exec")
+    pyLatestAvailableExec
     ;;
 
   "raw")

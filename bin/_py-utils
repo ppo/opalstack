@@ -6,6 +6,16 @@ function pyAvailableVersions() {
 }
 
 
+function pyLatestAvailableVersion() {
+  pyRealVersion `pyLatestAvailableExec`
+}
+
+
+function pyLatestAvailableExec() {
+  echo $(pyWhichExec `pyAvailableVersions | tail -n 1`)
+}
+
+
 function pyRealVersion() {
   $1 --version 2>&1 | cut -d ' ' -f 2
 }

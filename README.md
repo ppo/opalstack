@@ -42,7 +42,16 @@ See [Opalstack documentation](https://community.opalstack.com/d/204-howto-instal
 
 List available Python versions (in `$PATH` and `$HOME/opt/bin`).
 
-**Usage:** `py-versions [raw]`
+**Usage:** `py-versions [mode]`
+
+**Modes:**
+
+- `default`: Table of real versions and executables.
+- `exec`: List all executables.
+- `latest`: Latest version available.
+- `latest-exec`: Executable of latest version available.
+- `raw`: List all real versions.
+- `xy`: List "major.minor" version of all executables.
 
 
 ## Application templates
