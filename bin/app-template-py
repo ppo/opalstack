@@ -32,4 +32,4 @@ echo -e "\e[1;37mInstalling pip packages…\e[0m"
 . env/bin/activate
 pip install --upgrade -r opalstack-requirements.txt
 
-echo -e "\n\e[32mSuccessfully done.\e[0m"
+echo -e "\n\e[32m$APP_NAME successfully converted.\e[0m"
