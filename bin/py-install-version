@@ -24,7 +24,7 @@ if pyVersionExists $PY_VERSION && [ $FORCE = false ]; then
   py_real_version=`pyRealVersion $py_exec`
   echo "Python $py_real_version is already available ($py_exec)."
   [ "$py_real_version" = "$PY_VERSION" ] || echo "Use '--force' to install it anyway."
-  exit
+  exit 1
 fi
 
 mkdir -p $HOME/{opt,tmp} $LOCAL_PYTHON_BIN_DIR
@@ -51,3 +51,4 @@ rm -rf Python-${PY_VERSION}*
 # Execution report.
 py_exec=`pyWhichExec $PY_VERSION`
 echo -e "\n\e[32mSuccessfully installed Python `pyRealVersion $py_exec` ($py_exec).\e[0m"
+echo
