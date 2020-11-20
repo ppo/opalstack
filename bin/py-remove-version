@@ -1,0 +1,57 @@
+#!/bin/bash
+# Remove a version of Python (from `$HOME/opt`).
+# Usage: py-remove-version PY_VERSION
+
+
+. `dirname ${BASH_SOURCE[0]}`/_py-utils
+
+
+# Validate script arguments.
+[ $# -lt 1 ] && { echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` PY_VERSION\e[0m"; exit 1; }
+
+
+# Initialization.
+PY_VERSION=$1
+[[ "$PY_VERSION" =~ ^[0-9]\.[0-9]{1,2}$ ]] || { echo -e "\e[31mERROR: Version must be 'major.minor'.\e[0m"; exit 1; }
+[ -f `pyLocalExec $PY_VERSION` ] && EXISTS=true || EXISTS=false
+
+# Remove files.
+echo
+echo -e "\e[1;37mRemoving Python $PY_VERSION.\e[0m"
+[ $EXISTS = true ] || { echo -e "\e[33mPython $PY_VERSION doesn't seem to be installed in $LOCAL_PYTHON_DIR.\e[0m"; }
+
+rm -rf $LOCAL_PYTHON_DIR/bin/2to3-${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/bin/easy_install-${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/bin/idle${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/bin/pip${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/bin/pydoc${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/bin/python${PY_VERSION}*
+rm -rf $LOCAL_PYTHON_DIR/include/python${PY_VERSION}
+rm -rf $LOCAL_PYTHON_DIR/lib/libpython${PY_VERSION}*
+rm -rf $LOCAL_PYTHON_DIR/lib/pkgconfig/python-${PY_VERSION}*
+rm -rf $LOCAL_PYTHON_DIR/lib/python${PY_VERSION}
+
+find $LOCAL_PYTHON_DIR/share/man -name python${PY_VERSION}* -delete
+
+# List files that might have to be deleted manually.
+output=`find $LOCAL_PYTHON_DIR -name *$PY_VERSION*`
+if [ -n "$output" ]; then
+  echo
+  echo -e "\e[1;37mFiles that might have to be manually removed (containing '$PY_VERSION'):\e[0m"
+  echo "$output"
+fi
+
+# List broken symlinks.
+output=`find -L $LOCAL_PYTHON_DIR -type l`
+if [ -n "$output" ]; then
+  echo
+  echo -e "\e[1;37mBroken symlinks that might have to be manually fixed:\e[0m"
+  output_table=""
+  for link in $output; do output_table="$output_table\n$link:-> `readlink $link`"; done
+  echo -e $output_table | column -t -s ":"
+fi
+
+
+# Execution report.
+[ $EXISTS = true ] && echo -e "\n\e[32mSuccessfully removed Python $PY_VERSION.\e[0m"
+echo

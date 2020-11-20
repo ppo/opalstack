@@ -44,6 +44,15 @@ If a `major.minor` version is already installed, the requested version will be i
 See [Opalstack documentation](https://community.opalstack.com/d/204-howto-install-a-newer-or-older-version-of-python)
 
 
+### [py-remove-version](bin/py-remove-version)
+
+Remove a version of Python (from `$HOME/opt`).
+
+**Usage:** `py-remove-version VERSION`
+
+`VERSION` must be specified as `major.minor`.
+
+
 ### [py-versions](bin/py-versions)
 
 List available Python versions (in `$PATH` and `$HOME/opt/bin`).
