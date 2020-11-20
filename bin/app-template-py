@@ -74,8 +74,7 @@ $PY_EXEC -m venv venv
 sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini
 
 # Ensure permissions are correct.
-chmod 755 venv
-chmod 700 app tmp
+chmod 755 app tmp venv
 chmod 644 uwsgi.ini
 
 # Install pip packages.
