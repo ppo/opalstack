@@ -69,11 +69,7 @@ function action_status() {
   if _isRunning; then
     echo "running"
   else
-    if [ -z "$PID" ]; then
-      echo "stopped"
-    else
-      echo "crashed"
-    fi
+    [ -z "$PID" ] && echo "stopped" || echo "crashed"
   fi
 }
 
@@ -83,18 +79,9 @@ function action_stop() {
   if _isRunning; then
     $BIN_DIR/uwsgi --stop $PID_FILE
     sleep 3
-
-    if _isRunning; then
-      action_kill
-    else
-      _log "Stopped uWSGI at `_date`."
-    fi
+    _isRunning && action_kill || _log "Stopped uWSGI at `_date`."
   else
-    if [ -f "$PID_FILE" ]; then
-      _log "uWSGI not running."
-    else
-      _log "No PID file."
-    fi
+    [ -f "$PID_FILE" ] && _log "uWSGI not running." || _log "No PID file."
   fi
 
   rm -f $PID_FILE
