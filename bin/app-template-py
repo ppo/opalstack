@@ -41,6 +41,11 @@ cd $APP_DIR
 # Retrieve application port.
 APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
 
+# Remove current cron job.
+cron_selector="$APP_DIR/start"
+CRON_JOB_SCHEDULE=`crontab -l | grep -oP ".+(?= ${cron_selector}.*)"`
+[ -n "$CRON_JOB_SCHEDULE" ] && (crontab -l | grep -v "$cron_selector" | crontab -)
+
 # Stop the current application.
 [ -f ./stop ] && ./stop > /dev/null
 
@@ -72,6 +77,10 @@ echo -e "\e[1;37mInstalling pip packages…\e[0m"
 . venv/bin/activate
 pip install --upgrade -r opalstack-requirements.txt
 deactivate
+
+# Create new cron job.
+[ -z "$CRON_JOB_SCHEDULE" ] && CRON_JOB_SCHEDULE="*/10 * * * *"
+(crontab -l; echo "$CRON_JOB_SCHEDULE \$HOME/bin/app-control $APP_NAME cron") | crontab -
 
 
 # Execution report.
