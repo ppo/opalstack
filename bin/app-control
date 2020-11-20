@@ -1,7 +1,13 @@
 #!/bin/bash
 # Control the operation of Python applications.
 # Usage: app-control APP_NAME ACTION
-#  Actions: kill, restart, start, status, stop.
+# Actions:
+#   cron: Cron job tasks for the application.
+#   kill: Kill the application (in case it has hung).
+#   restart: Gracefully restart the application (uWSGI reload).
+#   start: Start the application.
+#   status: Status of the application (values: `running`, `stopped`, `crashed`).
+#   stop: Stop the application.
 
 
 # HELPERS

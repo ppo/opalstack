@@ -2,16 +2,17 @@
 
 ## Install procedure
 
-1. Create a `Python/uWSGI` application as explained [here](https://help.opalstack.com/article/60/pythonuwsgi-applications#installing-a-pythonuwsgi-application).
-2. Execute `app-template-py APP_NAME` (see [README](../../README.md)).
+1. Create a `Python/uWSGI` application via the Control Panel
+   ([Opalstack doc](https://help.opalstack.com/article/60/pythonuwsgi-applications#installing-a-pythonuwsgi-application)).
+2. Execute `app-template-py APP_NAME [PY_VERSION]` ([doc](../../README.md#app-template-py)).
 3. Copy your application files in the `app` directory.
+4. Modify `uwsgi.ini` if/as needed.
+5. Start the application: `app-control APP_NAME start`.
 
 
 ## Controlling your application
 
-`app-control APP_NAME ACTION`
-
-See [README](../../README.md).
+See [`app-control`](../../README.md#app-control).
 
 
 ## Directory structure
@@ -23,7 +24,7 @@ See [README](../../README.md).
 - `tmp`: Temporary files used by your application
   - `uwsgi.pid`: PID file
 - `opalstack-requirements.txt`: pip requirements related to the Opalstack app.
-- `uwsgi.ini`: Configuration for the Opalstack app.
+- `uwsgi.ini`: uWSGI configuration ([uWSGI doc](https://uwsgi-docs.readthedocs.io/)).
 
 
 ## Opalstack documentation

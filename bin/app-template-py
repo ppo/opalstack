@@ -76,5 +76,8 @@ deactivate
 
 # Execution report.
 echo -e "\n\e[32m$APP_NAME successfully converted.\e[0m"
-echo -e "\e[33m "Don't forget to start your app after installing it: \e[1;33mapp-control $APP_NAME start\e[0m"
+echo -e "\n\e[1;37mNext steps:\e[0m"
+echo "  - Copy your application files in `$APP_DIR/app/`."
+echo "  - Modify `$APP_DIR/uwsgi.ini` if/as needed."
+echo "  - Start the application: `app-control $APP_NAME start`."
 echo

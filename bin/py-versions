@@ -1,8 +1,8 @@
 #!/bin/bash
 # List available Python versions (in `$PATH` and `$HOME/opt/bin`).
-# Usage: py-versions [mode]
+# Usage: py-versions [MODE]
 # Modes:
-#   default: Table of real versions and executables.
+#   Default: Table of real versions and executables.
 #   exec: List all executables.
 #   latest: Latest version available.
 #   latest-exec: Executable of latest version available.

@@ -8,10 +8,11 @@ Control the operation of Python applications.
 
 **Usage:** `app-control APP_NAME ACTION`
 
-**Commands:**
+**Actions:**
 
-- `kill`: Kill the application if it has hung.
-- `restart`: Restart the application (executing stop then start).
+- `cron`: Cron job tasks for the application.
+- `kill`: Kill the application (in case it has hung).
+- `restart`: Gracefully restart the application (uWSGI reload).
 - `start`: Start the application.
 - `status`: Status of the application (values: `running`, `stopped`, `crashed`).
 - `stop`: Stop the application.
@@ -47,11 +48,11 @@ See [Opalstack documentation](https://community.opalstack.com/d/204-howto-instal
 
 List available Python versions (in `$PATH` and `$HOME/opt/bin`).
 
-**Usage:** `py-versions [mode]`
+**Usage:** `py-versions [MODE]`
 
 **Modes:**
 
-- `default`: Table of real versions and executables.
+- Default: Table of real versions and executables.
 - `exec`: List all executables.
 - `latest`: Latest version available.
 - `latest-exec`: Executable of latest version available.
