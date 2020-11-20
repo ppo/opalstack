@@ -58,11 +58,13 @@ mv * .* .original-files/ 2> /dev/null
 # Create files from template.
 echo -e "\e[1;37mCopying template files…\e[0m"
 cp -r $TEMPLATE_DIR/. .
+rm README.md
 find . -name .gitkeep -delete
 
 # Create virtual environment.
 echo -e "\e[1;37mCreating virtual environment…\e[0m"
 $PY_EXEC -m venv venv
+[ $? = 0 ] || { echo -e "\e[31mERROR: Virtual environment creation failed.\e[0m"; exit 1; }
 
 # Update configuration files.
 sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini

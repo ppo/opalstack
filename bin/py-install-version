@@ -35,6 +35,7 @@ export TMPDIR=$HOME/tmp
 cd $TMPDIR
 echo -e "\e[1;37mDownloading sources…\e[0m"
 wget https://www.python.org/ftp/python/$PY_VERSION/Python-$PY_VERSION.tgz
+[ $? = 0 ] || { echo -e "\e[31mERROR: Downloading sources failed.\e[0m"; exit 1; }
 tar zxvf Python-$PY_VERSION.tgz
 
 cd Python-$PY_VERSION
@@ -50,5 +51,6 @@ rm -rf Python-${PY_VERSION}*
 
 # Execution report.
 py_exec=`pyWhichExec $PY_VERSION`
+[ -z "$py_exec" ] && { echo -e "\e[31mERROR: Python $PY_VERSION executable not found.\e[0m"; exit 1; }
 echo -e "\n\e[32mSuccessfully installed Python `pyRealVersion $py_exec` ($py_exec).\e[0m"
 echo

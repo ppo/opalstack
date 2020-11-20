@@ -132,4 +132,4 @@ IS_CRON=false
 
 # Execute action.
 declare -F "$ACTION_FUNCTION" &> /dev/null
-[[ $? == 0 ]] && $ACTION_FUNCTION || { _error "Unknown action '$ACTION'."; }
+[ $? = 0 ] && $ACTION_FUNCTION || _error "Unknown action '$ACTION'."
