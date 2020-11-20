@@ -24,7 +24,7 @@ See [`app-control`](../../README.md#app-control).
 - `tmp`: Temporary files used by your application
   - `uwsgi.pid`: PID file
 - `opalstack-requirements.txt`: pip requirements related to the Opalstack app.
-- `uwsgi.ini`: uWSGI configuration ([uWSGI doc](https://uwsgi-docs.readthedocs.io/)).
+- `uwsgi.ini`: uWSGI configuration ([uWSGI options](https://uwsgi-docs.readthedocs.io/en/latest/Options.html)).
 
 
 ## Opalstack documentation
