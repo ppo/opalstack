@@ -1,8 +1,8 @@
-LOCAL_PYTHON_BIN_DIR=$HOME/opt/bin
+LOCAL_PYTHON_DIR=$HOME/opt
 
 
 function pyAvailableVersions() {
-  (ls /usr/bin/python*; ls $LOCAL_PYTHON_BIN_DIR/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq
+  (ls /usr/bin/python*; ls $LOCAL_PYTHON_DIR/bin/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq
 }
 
 
@@ -11,8 +11,23 @@ function pyLatestAvailableVersion() {
 }
 
 
+function pyExecFilename() {
+  echo "python`pyExecVersion $1`"
+}
+
+
+function pyExecVersion() {
+  cut -d '.' -f 1,2 <<< $1
+}
+
+
 function pyLatestAvailableExec() {
   echo $(pyWhichExec `pyAvailableVersions | tail -n 1`)
+}
+
+
+function pyLocalExec() {
+  echo "$LOCAL_PYTHON_DIR/bin/`pyExecFilename $1`"
 }
 
 
@@ -27,10 +42,10 @@ function pyVersionExists() {
 
 
 function pyWhichExec() {
-  py_exec_name="python`cut -d '.' -f 1,2 <<< $1`"
+  py_exec_name=`pyExecFilename $1`
   py_exec=`which $py_exec_name 2> /dev/null`
-  if [ -z "$py_exec" ] && [ -f "$LOCAL_PYTHON_BIN_DIR/$py_exec_name" ]; then
-    py_exec="$LOCAL_PYTHON_BIN_DIR/$py_exec_name"
+  if [ -z "$py_exec" ] && [ -f `pyLocalExec $1` ]; then
+    py_exec=`pyLocalExec $1`
   fi
   echo $py_exec
 }

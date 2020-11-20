@@ -27,7 +27,7 @@ if pyVersionExists $PY_VERSION && [ $FORCE = false ]; then
   exit 1
 fi
 
-mkdir -p $HOME/{opt,tmp} $LOCAL_PYTHON_BIN_DIR
+mkdir -p $HOME/tmp $LOCAL_PYTHON_DIR/bin
 export TMPDIR=$HOME/tmp
 
 
@@ -40,7 +40,7 @@ tar zxvf Python-$PY_VERSION.tgz
 
 cd Python-$PY_VERSION
 echo -e "\n\e[1;37mInstalling Python $PY_VERSION…\e[0m"
-./configure --prefix=$HOME/opt
+./configure --prefix=$LOCAL_PYTHON_DIR
 make
 make install
 cd ..
