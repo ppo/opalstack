@@ -124,7 +124,7 @@ ACTION=$2
 ACTION_FUNCTION="action_$ACTION"
 
 APP_DIR="$HOME/apps/$APP_NAME"
-BIN_DIR="$APP_DIR/env/bin"
+BIN_DIR="$APP_DIR/venv/bin"
 PID_FILE="$APP_DIR/tmp/uwsgi.pid"
 [ -f "$PID_FILE" ] && PID=`cat $PID_FILE` || PID=
 

@@ -57,19 +57,19 @@ find . -name .gitkeep -delete
 
 # Create virtual environment.
 echo -e "\e[1;37mCreating virtual environment…\e[0m"
-$PY_EXEC -m venv env
+$PY_EXEC -m venv venv
 
 # Update configuration files.
 sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini
 
 # Ensure permissions are correct.
-chmod 755 env
+chmod 755 venv
 chmod 700 app tmp
 chmod 644 uwsgi.ini
 
 # Install pip packages.
 echo -e "\e[1;37mInstalling pip packages…\e[0m"
-. env/bin/activate
+. venv/bin/activate
 pip install --upgrade -r opalstack-requirements.txt
 deactivate
 

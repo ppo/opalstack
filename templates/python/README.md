@@ -19,7 +19,7 @@ See [README](../../README.md).
 - `app`: Your application.
   - `config`
     - `wsgi.py`: WSGI config for your application (used in `/uwsgi.ini`, cf. below).
-- `env`: Python 3 virtual environment ([doc](https://docs.python.org/3/library/venv.html))
+- `venv`: Python 3 virtual environment ([Python doc](https://docs.python.org/3/library/venv.html))
 - `tmp`: Temporary files used by your application
   - `uwsgi.pid`: PID file
 - `opalstack-requirements.txt`: pip requirements related to the Opalstack app.
