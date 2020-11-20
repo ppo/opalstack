@@ -25,8 +25,10 @@ APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
 # Stop the current application.
 [ -f ./stop ] && ./stop > /dev/null
 
-# Remove all files.
-rm -rf *
+# Move current files to backup folder.
+echo -e "\e[1;37mCurrent files moved into '.original-files/'.\e[0m"
+mkdir -p .original-files
+mv * .* .original-files/ 2> /dev/null
 
 
 # Create files from template.
