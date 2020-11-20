@@ -51,7 +51,7 @@ CRON_JOB_SCHEDULE=`crontab -l | grep -oP ".+(?= ${cron_selector}.*)"`
 
 # Move current files to backup folder.
 echo -e "\e[1;37mCurrent files moved into '.original-files/'.\e[0m"
-mkdir -p .original-files && chmod 770
+mkdir -p .original-files && chmod 770 .original-files
 mv * .* .original-files/ 2> /dev/null
 
 
@@ -86,7 +86,7 @@ deactivate
 # Execution report.
 echo -e "\n\e[32m$APP_NAME successfully converted.\e[0m"
 echo -e "\n\e[1;37mNext steps:\e[0m"
-echo "  - Copy your application files in `$APP_DIR/app/`."
-echo "  - Modify `$APP_DIR/uwsgi.ini` if/as needed."
-echo "  - Start the application: `app-control $APP_NAME start`."
+echo -e "- Copy your application files in \e[36m$APP_DIR/app/\e[0m"
+echo -e "- Modify \e[36m$APP_DIR/uwsgi.ini\e[0m if/as needed"
+echo -e "- Start the application: \e[36mapp-control $APP_NAME start\e[0m"
 echo

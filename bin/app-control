@@ -24,7 +24,7 @@ function _error() {
 
 
 function _log() {
-  [ IS_CRON = false ] && echo "[app: $APP_NAME] $1"
+  [ $IS_CRON = false ] && echo "[app: $APP_NAME] $1"
 }
 
 
