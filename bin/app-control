@@ -44,11 +44,9 @@ function action_kill() {
 }
 
 
-## Restart the application (executing stop then start).
+## Gracefully restart the application (uWSGI reload).
 function action_restart() {
-  action_stop
-  sleep 3
-  action_start
+  $BIN_DIR/uwsgi --reload $PID_FILE
 }
 
 
