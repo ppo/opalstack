@@ -55,7 +55,7 @@ CRON_JOB_SCHEDULE=`crontab -l | grep -oP ".+(?= ${cron_selector}.*)"`
 
 # Move current files to backup folder.
 echo -e "\e[1;37mMoving current files into '.original-files/'.\e[0m"
-mkdir -p .original-files && chmod 770 .original-files
+mkdir -p .original-files && chmod 770 $_
 mv * .* .original-files/ 2> /dev/null
 
 
@@ -88,6 +88,15 @@ deactivate
 echo -e "\e[1;37mCreating new cron job.\e[0m"
 [ -z "$CRON_JOB_SCHEDULE" ] && CRON_JOB_SCHEDULE="*/10 * * * *"
 (crontab -l; echo "$CRON_JOB_SCHEDULE \$HOME/bin/app-control $APP_NAME cron") | crontab -
+
+# Create symlinks to logs.
+mkdir -p logs && chmod 700 $_
+ln -s $HOME/logs/apps/$APP_NAME app
+ln -s $HOME/logs/apps/$APP_NAME/uwsgi.log
+ln -s $HOME/logs/sites/$APP_NAME site
+ln -s $HOME/logs/sites/$APP_NAME/access.log
+ln -s $HOME/logs/sites/$APP_NAME/error.log
+cd ..
 
 
 # Execution report.
