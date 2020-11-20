@@ -34,9 +34,10 @@ export TMPDIR=$HOME/tmp
 # Install version.
 cd $TMPDIR
 echo -e "\e[1;37mDownloading sources…\e[0m"
-wget https://www.python.org/ftp/python/$PY_VERSION/Python-$PY_VERSION.tgz
+wget -nv https://www.python.org/ftp/python/$PY_VERSION/Python-$PY_VERSION.tgz
 [ $? = 0 ] || { echo -e "\e[31mERROR: Downloading sources failed.\e[0m"; exit 1; }
-tar zxvf Python-$PY_VERSION.tgz
+
+tar zxf Python-$PY_VERSION.tgz
 
 cd Python-$PY_VERSION
 echo -e "\n\e[1;37mInstalling Python $PY_VERSION…\e[0m"
