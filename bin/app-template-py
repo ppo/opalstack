@@ -74,8 +74,10 @@ $PY_EXEC -m venv venv
 sed -i "s#%HOME%#$HOME#g;s/%APP_NAME%/$APP_NAME/g;s/%APP_PORT%/$APP_PORT/" uwsgi.ini
 
 # Ensure permissions are correct.
-chmod 755 app tmp venv
-chmod 644 uwsgi.ini
+chmod 750 app tmp venv
+setfacl -m u:nginx:r-x app venv
+chmod 640 opalstack-requirements.txt uwsgi.ini
+setfacl -m u:nginx:r-- app venv
 
 # Install pip packages.
 echo -e "\e[1;37mInstalling pip packages…\e[0m"
@@ -89,7 +91,7 @@ echo -e "\e[1;37mCreating new cron job.\e[0m"
 (crontab -l; echo "$CRON_JOB_SCHEDULE \$HOME/bin/app-control $APP_NAME cron") | crontab -
 
 # Create symlinks to logs.
-mkdir -p logs && chmod 700 $_
+mkdir -p logs && chmod 750 $_
 ln -s $HOME/logs/apps/$APP_NAME app
 ln -s $HOME/logs/apps/$APP_NAME/uwsgi.log
 ln -s $HOME/logs/sites/$APP_NAME site
