@@ -27,6 +27,37 @@ See [`app-control`](../../README.md#app-control).
 - `uwsgi.ini`: uWSGI configuration ([uWSGI options](https://uwsgi-docs.readthedocs.io/en/latest/Options.html)).
 
 
+## Django
+
+To create a Django application, you can start with the following…  
+Replace `APP_NAME`, `MY_PROJECT`, and `your-domain.com` with your values.
+
+```bash
+cd $HOME/apps/APP_NAME/
+
+. venv/bin/activate
+pip install django
+rm venv/bin/django-admin.py
+
+cd tmp
+django-admin startproject MY_PROJECT
+mv MY_PROJECT/* ../app/
+rmdir MY_PROJECT
+
+cd ../venv/bin/
+ln -s ../../app/manage.py
+
+cd ../../
+sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = ['your-domain.com']/" app/MY_PROJECT/settings.py
+sed -i "/DATABASES =/, /^}/ s/^/# /" app/MY_PROJECT/settings.py
+sed -i "s#config/wsgi.\py#MY_PROJECT/wsgi.py#g" uwsgi.ini
+
+app-control APP_NAME restart
+```
+
+And you should see the default "The install worked successfully! Congratulations!" page on http://your-domain.com/
+
+
 ## Opalstack documentation
 
 - [Python/uWSGI Applications](https://help.opalstack.com/article/60/pythonuwsgi-applications)
