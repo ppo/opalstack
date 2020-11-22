@@ -53,7 +53,12 @@ function action_kill() {
 
 ## Gracefully restart the application (uWSGI reload).
 function action_restart() {
-  $BIN_DIR/uwsgi --reload $PID_FILE
+  if _isRunning; then
+    $BIN_DIR/uwsgi --reload $PID_FILE
+  else
+    _log "uWSGI is not running so start it instead."
+    action_start
+  fi
 }
 
 
