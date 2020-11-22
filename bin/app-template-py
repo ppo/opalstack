@@ -91,7 +91,7 @@ echo -e "\e[1;37mCreating new cron job.\e[0m"
 (crontab -l; echo "$CRON_JOB_SCHEDULE \$HOME/bin/app-control $APP_NAME cron") | crontab -
 
 # Create symlinks to logs.
-mkdir -p logs && chmod 750 $_
+mkdir -p logs && chmod 750 $_ && cd $_
 ln -s $HOME/logs/apps/$APP_NAME app
 ln -s $HOME/logs/apps/$APP_NAME/uwsgi.log
 ln -s $HOME/logs/sites/$APP_NAME site
