@@ -1,5 +1,8 @@
 # Opalstack Utils
 
+Utils for [Opalstack](https://www.opalstack.com/) (managed hosting for developers).
+
+
 ## Shell scripts
 
 ### [app-control](bin/app-control)
