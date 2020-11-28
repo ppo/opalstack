@@ -1,0 +1,221 @@
+# Easy CLI v0.1.1
+# https://github.com/ppo/easycli
+
+
+# Define settings.
+EASYCLI_TARGET="${EASYCLI_TARGET-$0}"
+EASYCLI_COMPACT=${EASYCLI_COMPACT-1}
+EASYCLI_USAGE_ARGS="${EASYCLI_USAGE_ARGS-COMMAND [ARGS]...}"
+EASYCLI_COLOR_ARG="${EASYCLI_COLOR_ARG-\e[32m}"
+EASYCLI_COLOR_CMD="${EASYCLI_COLOR_CMD-\e[36m}"
+EASYCLI_COLOR_ERROR="${EASYCLI_COLOR_ERROR-\e[31m}"
+EASYCLI_COLOR_HEADING="${EASYCLI_COLOR_HEADING-\e[1;37m}"
+EASYCLI_COLOR_RESET="${EASYCLI_COLOR_RESET-\e[0m}"
+
+
+# If no color support, disable colors.
+num_colors=$(tput colors)
+if [ -z "$num_colors" ] || [ $num_colors -lt 8 ]; then
+  EASYCLI_COLOR_ARG=
+  EASYCLI_COLOR_CMD=
+  EASYCLI_COLOR_ERROR=
+  EASYCLI_COLOR_HEADING=
+  EASYCLI_COLOR_RESET=
+fi
+
+
+# Check that the required `EASYCLI_TARGET` variable is defined.
+if [ -z "$EASYCLI_TARGET" ]; then
+  echo -e "${EASYCLI_COLOR_ERROR}ERROR: Set 'EASYCLI_TARGET' in your script as follows:" \
+    "EASYCLI_TARGET="\$\{BASH_SOURCE[0]\}"${EASYCLI_COLOR_RESET}"
+  exit 1;
+fi
+
+# Check that the `EASYCLI_TARGET` exists.
+if ! [ -f "$EASYCLI_TARGET" ]; then
+  echo -e "${EASYCLI_COLOR_ERROR}ERROR: The script defined in 'EASYCLI_TARGET' cannot be found."
+  echo -e "$EASYCLI_TARGET does not exist.${EASYCLI_COLOR_RESET}"
+  exit 1
+fi
+
+
+# Initialize global variables.
+EASYCLI_COMMANDS=
+EASYCLI_COMMANDS_TABLE=
+
+
+# Initialize `EASYCLI_COMMANDS_TABLE`, the table of command names with their description.
+function easycli_init_commands_table() {
+  [ -n "$EASYCLI_COMMANDS_TABLE" ] && return
+  EASYCLI_COMMANDS_TABLE=$(
+    sed -E -n \
+      -e "/^## / { \
+          h; \
+          s/.*//; \
+          :loop" \
+      -e "H; \
+          n; \
+          s/^##( |$)//; \
+          t loop" \
+      -e "s/^function ([^\(]+).*$/\1/; \
+          s/^command_//; \
+          s/__/:/; \
+          G; \
+          s/\\n## /\\\t/; \
+          s/\\n/ /g; \
+          p; }" \
+      "$EASYCLI_TARGET" \
+    | LC_ALL=C sort -f
+  )
+}
+
+
+# Initialize `EASYCLI_COMMANDS`, the list of all available command names.
+# It's the first column of `EASYCLI_COMMANDS_TABLE`.
+function easycli_init_commands() {
+  [ -n "$EASYCLI_COMMANDS" ] && return
+  easycli_init_commands_table
+  EASYCLI_COMMANDS=$(echo -e "$EASYCLI_COMMANDS_TABLE" | cut -f 1)
+}
+
+
+# Display the list of commands with their description.
+function easycli_display_commands() {
+  easycli_init_commands
+
+  declare -i cmd_max_length=0
+  for cmd in $(echo -e "$EASYCLI_COMMANDS"); do
+    l=${#cmd}
+    [ $l -gt $cmd_max_length ] && cmd_max_length=$l
+  done
+
+  echo -e "$EASYCLI_COMMANDS_TABLE" | awk \
+    -F "\t" \
+    -v num_cols=$(tput cols) \
+    -v cmd_max_length=$cmd_max_length \
+    -v left_pad="  " \
+    -v col_pad=" " \
+    -v compact="$EASYCLI_COMPACT" \
+    -v color_heading="$(printf "$EASYCLI_COLOR_HEADING")" \
+    -v color_cmd="$(printf "$EASYCLI_COLOR_CMD")" \
+    -v color_arg="$(printf "$EASYCLI_COLOR_ARG")" \
+    -v color_reset="$(printf "$EASYCLI_COLOR_RESET")" \
+    'function print_col1(content) {
+      if (content == "") printf "\n";
+      printf left_pad;
+      if (indent == "") {
+        printf color_cmd sprintf("%-*s", cmd_max_length, content) color_reset col_pad;
+        line_length = col1_length;
+      } else {
+        printf indent;
+        line_length = length(left_pad) + length(indent);
+      }
+    }
+    function update_line_length() {
+      line_length += 1 + length(words[i]);
+    }
+    function process_args(tag, word) {
+      switch (tag) {
+        case "@usage":
+        case "@args":
+          prefix = toupper(substr(tag, 2, 1)) substr(tag, 3) ": ";
+          output = color_heading prefix color_reset color_arg word;
+          indent2 = sprintf("%-*s", length(prefix), "");
+          break;
+        case "@arg":
+          prefix = "";
+          output = color_arg word color_reset;
+          indent2 = sprintf("%-*s", length(word) + 1, "");
+          break;
+        default: return;
+      }
+
+      if (indent == "" && !compact) printf "\n";
+      indent = "  ";
+      print_col1("");
+      printf " " output;
+      line_length += 1 + length(prefix) + length(word);
+      indent = indent indent2;
+    }
+    {
+      if (!compact && col1_length) printf "\n";
+      col1_length = length(left_pad) + cmd_max_length + length(col_pad);
+      indent = ""; indent2 = "";
+      num_words = split($2, words, " ");
+      tag = "";
+      print_col1($1);
+      for (i = 1; i <= num_words; i++) {
+        if (substr(words[i], 0, 1) == "@") {
+          tag = words[i];
+          continue;
+        }
+        if (tag) {
+          process_args(tag, words[i]);
+          tag = "";
+          continue;
+        }
+        update_line_length();
+        if (line_length > num_cols) {
+          print_col1("");
+          update_line_length();
+        }
+        printf " " words[i];
+      }
+      printf color_reset "\n";
+    }'
+}
+
+
+# Display the full help screen (usage header and list of commands with their description).
+function easycli_display_usage() {
+  [ "$EASYCLI_COMPACT" = 0 ] && echo
+  echo -e "${EASYCLI_COLOR_HEADING}USAGE:${EASYCLI_COLOR_RESET}" \
+    "${EASYCLI_COLOR_CMD}$(basename $EASYCLI_TARGET) ${EASYCLI_USAGE_ARGS}${EASYCLI_COLOR_RESET}"
+  echo
+  echo -e "${EASYCLI_COLOR_HEADING}COMMANDS:${EASYCLI_COLOR_RESET}"
+  [ "$EASYCLI_COMPACT" = 0 ] && echo
+  easycli_display_commands
+  [ "$EASYCLI_COMPACT" = 0 ] && echo
+}
+
+
+# Return the function name based on the command name.
+# Converts all `:` into `__`.
+# Try to locate the function with and without the `command_` prefix.
+function easycli_get_command_function() {
+  fct=${1//:/__}
+
+  # Check first if the function with `command_` prefix exists. If so, return it.
+  [ -n "$(LC_ALL=C type "command_$fct" 2> /dev/null)" ] && echo "command_$fct"
+
+  # If the regular function is not found, exit with error message.
+  if [ -z "$(LC_ALL=C type $fct 2> /dev/null)" ]; then
+    echo -e "${EASYCLI_COLOR_ERROR}ERROR: Function for command '$1' not found.${EASYCLI_COLOR_RESET}"
+    exit 1
+  fi
+
+  echo $fct
+}
+
+
+# Execute the script with the provided script arguments.
+function easycli_exec_command() {
+  easycli_init_commands  # Retrieve available commands.
+  COMMAND=$1  # Get the command to execute.
+  shift  # Remove the command from args.
+
+  # If no command defined or command is "help", show usage.
+  if [ -z "$COMMAND" ] || [ "$COMMAND" = "help" ]; then
+    [[ "$*" =~ "--compact" ]] && EASYCLI_COMPACT=1
+    easycli_display_usage
+
+  # If the command is registered via easycli, execute it with scripts args as-is.
+  elif [ -n "$(grep "^$COMMAND$" <<< "$EASYCLI_COMMANDS")" ]; then
+    $(easycli_get_command_function "$COMMAND") "$@"
+
+  # If the command is not registered via easycli, report error and show usage.
+  else
+    echo -e "${EASYCLI_COLOR_ERROR}ERROR: Unknown command '$COMMAND'.${EASYCLI_COLOR_RESET}"
+    easycli_display_usage
+  fi
+}

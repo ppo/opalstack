@@ -10,6 +10,10 @@
 #   stop: Stop the application.
 
 
+__DIR__="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. $__DIR__/_easycli
+
+
 # HELPERS
 
 function _date() {
@@ -34,17 +38,17 @@ function _isRunning() {
 }
 
 
-# ACTIONS
+# COMMANDS
 
 ## Cron job tasks for the application.
-function action_cron() {
+function command_cron() {
   IS_CRON=true
-  action_start
+  command_start
 }
 
 
 ## Kill the application (in case it has hung).
-function action_kill() {
+function command_kill() {
   kill -9 $PID
   _log "Killed uWSGI at `_date`."
   rm -f $PID_FILE
@@ -52,18 +56,18 @@ function action_kill() {
 
 
 ## Gracefully restart the application (uWSGI reload).
-function action_restart() {
+function command_restart() {
   if _isRunning; then
     $BIN_DIR/uwsgi --reload $PID_FILE
   else
     _log "uWSGI is not running so start it instead."
-    action_start
+    command_start
   fi
 }
 
 
 ## Start the application.
-function action_start() {
+function command_start() {
   if _isRunning; then
     _log "uWSGI already running."
   else
@@ -75,7 +79,7 @@ function action_start() {
 
 
 ## Status of the application (values: `running`, `stopped`, `crashed`).
-function action_status() {
+function command_status() {
   if _isRunning; then
     echo "running"
   else
@@ -85,11 +89,11 @@ function action_status() {
 
 
 ## Stop the application.
-function action_stop() {
+function command_stop() {
   if _isRunning; then
     $BIN_DIR/uwsgi --stop $PID_FILE
     sleep 3
-    _isRunning && action_kill || _log "Stopped uWSGI at `_date`."
+    _isRunning && command_kill || _log "Stopped uWSGI at `_date`."
   else
     [ -f "$PID_FILE" ] && _log "uWSGI not running." || _log "No PID file."
   fi
@@ -98,33 +102,18 @@ function action_stop() {
 }
 
 
-function action_help() {
-  # For explanation, see https://gist.github.com/klmr/575726c7e05d8780505a
-  declare -i indent=0
-  for cmd in `grep -oE "^function action_[^\(]+" ${BASH_SOURCE[0]} | sed "s/function action_//"`; do
-    l=${#cmd}; [ $l -gt $indent ] && indent=$l
-  done
-  echo
-  echo -e "\e[1;37mUsage:\e[0m \e[33m`basename ${BASH_SOURCE[0]}` APP_NAME ACTION\e[0m"
-  echo
-  echo -e "\e[1;37mCommands:\e[0m"
-  sed -E -ne"/^## /{h;s/.*//;:d" -e"H;n;s/^## //;td" -e"s/^function action_([^\(]+).*/\1/;s/__/:/;G;s/\\n## /---/;s/\\n/ /g;p;}" ${BASH_SOURCE[0]} \
-    | LC_ALL=C sort -f \
-    | awk -F "---" -v n=$(tput cols) -v i=$indent -v a="`printf '\e[36m'`" -v z="`printf '\e[0m'`" \
-    '{printf"  %s%*s%s ",a,-i,$1,z;m=split($2,w," ");l=n-i;for(j=1;j<=m;j++){l-=length(w[j])+1;if(l<= 0){l=n-i-length(w[j])-1;printf"\n  %*s ",-i," ";}printf"%s ",w[j];}printf"\n";}'
-  echo
-}
-
-
 # EXECUTION
 
 # Validate script arguments.
-[ $# -lt 2 ] && { action_help; exit 1; }
+if [ $# -lt 2 ]; then
+  easycli_display_usage
+  exit 1
+fi
 
 # Initialization.
 APP_NAME=$1
 ACTION=$2
-ACTION_FUNCTION="action_$ACTION"
+ACTION_FUNCTION="command_$ACTION"
 
 APP_DIR="$HOME/apps/$APP_NAME"
 BIN_DIR="$APP_DIR/venv/bin"
