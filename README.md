@@ -15,6 +15,7 @@ Control the operation of Python applications.
 
 - `cron`: Cron job tasks for the application.
 - `kill`: Kill the application (in case it has hung).
+- `list`: List available applications.
 - `restart`: Gracefully restart the application (uWSGI reload).
 - `start`: Start the application.
 - `status`: Status of the application (values: `running`, `stopped`, `crashed`).
