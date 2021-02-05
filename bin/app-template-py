@@ -42,7 +42,8 @@ cd $APP_DIR
 echo -e "\n\e[1;37mConverting \e[36m$APP_DIR\e[1;37m using Python \e[36m`pyRealVersion $PY_EXEC`\e[1;37m.\e[0m\n"
 
 # Retrieve application port.
-APP_PORT=`grep -oP "^http = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
+APP_PORT=`grep -oP "^http(-socket)? = 127\.0\.0\.1:\K[0-9]+$" uwsgi.ini`
+[ -z "$APP_PORT" ] && echo -e "\e[0;31mERROR: App port not extracted correctly.\nModify manually 'uwsgi.ini' by retrieving the value in the '.original-files' directory.\e[0m"
 
 # Remove current cron job.
 echo -e "\e[1;37mRemoving current cron job.\e[0m"
