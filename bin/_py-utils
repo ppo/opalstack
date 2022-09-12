@@ -2,7 +2,7 @@ LOCAL_PYTHON_DIR=$HOME/opt
 
 
 function pyAvailableVersions() {
-  (ls /usr/bin/python*; ls $LOCAL_PYTHON_DIR/bin/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq
+  (ls /usr/bin/python*; ls $LOCAL_PYTHON_DIR/bin/python*; ls /usr/local/bin/python*) | grep -oP 'python\K[0-9]+\.[0-9]+' | sort -V | uniq
 }
 
 
