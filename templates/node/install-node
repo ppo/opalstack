@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# Process args.
+FROM_SOURCE=false
+[ "$1" == "--src" ] && { FROM_SOURCE=true; shift; }
+VERSION="$1"
+
+
+# Validate args.
+if [ -z "$VERSION" ]; then
+  echo "Usage: $( basename "${BASH_SOURCE[0]}" ) [--src] <version>"
+  echo "Available versions: https://nodejs.org/en/download/"
+  exit 1
+fi
+
+
+# Helpers.
+safe_version() {
+  [ "${1:0:1}" == "v" ] && echo "${1:1}" || echo "$1"
+}
+
+
+# Settings.
+DIR="$( realpath "$( dirname "${BASH_SOURCE[0]}" )" )"
+source "${DIR}/.env"
+
+NODE_VERSION=$( safe_version $VERSION )
+CURRENT_NODE_VERSION=$( safe_version "$( node --version )" )
+
+NODE_BASE_FILENAME="node-v${NODE_VERSION}"
+if [ "$FROM_SOURCE" = true ]; then
+  NODE_FILENAME="${NODE_BASE_FILENAME}.tar.xz"
+else
+  NODE_FILENAME="${NODE_BASE_FILENAME}-linux-x64.tar.xz"
+fi
+NODE_DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/${NODE_FILENAME}"
+
+# For `make` when building from sources: Number of jobs to run simultaneously.
+NUM_JOBS=2
+
+
+# Check if version already installed.
+if [ "$NODE_VERSION" == "$CURRENT_NODE_VERSION" ]; then
+  echo "Version ${NODE_VERSION} is already installed."
+  exit 0
+fi
+
+
+# Execution.
+echo "Installing Node.js version ${NODE_VERSION}."
+if [ "$FROM_SOURCE" = true ]; then
+  echo
+  echo "  /!\ INSTALLING FROM SOURCES WILL TAKE A VERY LONG TIME (1 HOUR OR MORE)."
+  echo
+fi
+
+
+# Stop the app.
+"$BASE_DIR"/stop
+
+
+# Remove current Node version.
+if [ -d "$NODE_DIR" ]; then
+  # echo "Removing existing version: ${CURRENT_NODE_VERSION}"
+  # rm -fr "$NODE_DIR"
+  mv "$NODE_DIR" "${NODE_DIR}.old"
+fi
+
+
+# ??? Remove installed packages.
+# if [ -d "${BASE_DIR}/node_modules" ] && [ -f "${BASE_DIR}/package.json" ]; then
+#   echo "Removing node_modules."
+#   rm -fr "${BASE_DIR}/node_modules"
+# fi
+
+
+# Download Node binaries.
+if [ ! -f "${TMP_DIR}/${NODE_FILENAME}" ]; then
+  echo "Downloading version ${NODE_VERSION}."
+  echo "  URL: ${NODE_DOWNLOAD_URL}"
+  cd "$TMP_DIR"
+  wget -q "$NODE_DOWNLOAD_URL"
+fi
+
+
+# Install.
+echo "Installing version ${NODE_VERSION}."
+mkdir -p "$NODE_DIR"
+if [ "$FROM_SOURCE" = true ]; then
+  cd "$TMP_DIR"
+  tar fxz "$NODE_FILENAME"
+  cd $NODE_BASE_FILENAME
+  scl enable devtoolset-11 -- ./configure --prefix="$NODE_DIR"
+  scl enable devtoolset-11 -- make -j $NUM_JOBS
+  scl enable devtoolset-11 -- make install
+else
+  cd "$NODE_DIR"
+  tar fx "${TMP_DIR}/${NODE_FILENAME}" --strip 1
+fi
+cd "$BASE_DIR"
+
+
+# Check if successfully installed.
+if [ "$NODE_VERSION" != "$( safe_version "$( node --version )" )" ]; then
+  echo "FAILED to install version ${NODE_VERSION}."
+  echo
+  echo "Manual cleanup required:"
+  echo "- New failed version dir: ${NODE_DIR}"
+  echo "- Old version dir: ${NODE_DIR}.old"
+  echo "- Downloaded Node file: ${TMP_DIR}/${NODE_FILENAME}"
+  exit 1
+fi
+echo "Version ${NODE_VERSION} successfully installed."
+
+
+# ??? Install packages.
+# if [ -f "${BASE_DIR}/package.json" ]
+#   echo "Installing packages."
+#   npm install
+# fi
+
+
+# Start the app.
+"$BASE_DIR"/start
+
+
+# Cleaning.
+rm -fr "${NODE_DIR}.old"
+rm -fr "${TMP_DIR}/${NODE_BASE_FILENAME}"
+rm "${TMP_DIR}/${NODE_FILENAME}"

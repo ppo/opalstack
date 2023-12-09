@@ -1,0 +1,7 @@
+#!/bin/bash
+
+DIR="$( realpath "$( dirname "${BASH_SOURCE[0]}" )" )"
+
+echo "Restarting…"
+"$DIR"/stop
+"$DIR"/start

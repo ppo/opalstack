@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DIR="$( realpath "$( dirname "${BASH_SOURCE[0]}" )" )"
+source "${DIR}/.env"
+
+
+if [ ! -e "$PID_FILE" ]; then
+  echo "The app '${APP_NAME}' seems already stopped."
+  echo "  The PID file (${PID_FILE}) is missing."
+  exit 99
+fi
+
+echo "Stopping the app '${APP_NAME}'."
+PID=$( cat "$PID_FILE" )
+
+if [ -e "$PID_FILE" ] && ( pgrep -u $USER | grep -x -f "$PID_FILE" &> /dev/null ); then
+  kill $PID
+  sleep 3
+fi
+
+if [ -e "$PID_FILE" ] && ( pgrep -u $USER | grep -x -f "$PID_FILE" &> /dev/null ); then
+  echo "  The app did not stop, so killing it."
+  sleep 3
+  kill -9 $PID
+fi
+
+rm -f "$PID_FILE"

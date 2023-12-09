@@ -3,7 +3,13 @@
 Utils for [Opalstack](https://www.opalstack.com/) (managed hosting for developers).
 
 
-## Shell scripts
+## Application Templates
+
+- [Node.js](templates/node)
+- [Python](templates/python)
+
+
+## Shell Scripts
 
 ### [app-control](bin/app-control)
 
@@ -80,8 +86,3 @@ List available Python versions (in `$PATH` and `$HOME/opt/bin`).
 - `latest-exec`: Executable of latest version available.
 - `raw`: List all real versions.
 - `xy`: List "major.minor" version of all executables.
-
-
-## Application templates
-
-- [Python](templates/python)

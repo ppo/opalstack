@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DIR="$( realpath "$( dirname "${BASH_SOURCE[0]}" )" )"
+source "${DIR}/.env"
+
+
+if [ -e "$PID_FILE" ] && ( pgrep -u $USER | grep -x -f "$PID_FILE" &> /dev/null ); then
+  echo "The app '${APP_NAME}' is already running."
+  exit 99
+fi
+
+echo "Starting the app '${APP_NAME}'."
+/usr/sbin/daemonize -c "$BASE_DIR" -p "$PID_FILE" \
+  -a -e "$LOG_DIR"/node_error.log -o "$LOG_DIR"/node_output.log \
+  "$NODE_DIR"/bin/node "$APP_ENTRYPOINT"
