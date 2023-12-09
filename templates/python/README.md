@@ -1,6 +1,6 @@
 # Python Applications
 
-## Install procedure
+## Install Procedure
 
 1. Create a `Python/uWSGI` application via the Control Panel
    ([Opalstack doc](https://help.opalstack.com/article/60/pythonuwsgi-applications#installing-a-pythonuwsgi-application)).
@@ -10,12 +10,12 @@
 5. Start the application: `app-control APP_NAME start`.
 
 
-## Controlling your application
+## Controlling Your Application
 
 See [`app-control`](../../README.md#app-control).
 
 
-## Directory structure
+## Directory Structure
 
 - `app`: Your application.
   - `config`
@@ -60,7 +60,7 @@ cd ../..
 And you should see the default "The install worked successfully! Congratulations!" page on http://your-domain.com/
 
 
-## Opalstack documentation
+## Opalstack Documentation
 
 - [Python/uWSGI Applications](https://help.opalstack.com/article/60/pythonuwsgi-applications)
 - [Django Applications](https://help.opalstack.com/article/61/installing-django)
